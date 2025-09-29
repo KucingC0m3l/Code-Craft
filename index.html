@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Code Craft - Learn JavaScript by crafting items with code">
+    <meta name="keywords" content="javascript, game, coding, learning, interactive">
+    <title>Code Craft - Craft Items with Code</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-mode">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1 class="logo">
+                <span class="logo-icon">⚡</span>
+                Code Craft
+            </h1>
+            <div class="header-controls">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <span class="theme-icon">☀️</span>
+                </button>
+                <div class="level-info">
+                    <span class="level-text">Level <span id="currentLevel">1</span></span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+                <div class="score">
+                    <span class="score-label">Score:</span> 
+                    <span id="scoreValue">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="game-container">
+        <!-- Code Editor Panel -->
+        <section class="code-panel">
+            <div class="panel-header">
+                <h2>Code Editor</h2>
+                <div class="header-buttons">
+                    <button class="hint-btn" id="hintBtn">
+                        <span>💡</span> Hint
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Recipe Display -->
+            <div class="recipe-display">
+                <div class="recipe-title">📋 Current Recipe:</div>
+                <div class="recipe-content" id="recipeContent">
+                    Create a function called <code>craftHammer()</code> that returns an object with name and damage properties.
+                </div>
+            </div>
+            
+            <!-- Code Editor -->
+            <div class="code-editor-container">
+                <div class="editor-header">
+                    <span class="editor-label">JavaScript</span>
+                    <span class="editor-info">Press Ctrl+Enter to craft</span>
+                </div>
+                <textarea 
+                    id="codeEditor" 
+                    class="code-editor" 
+                    spellcheck="false">function craftHammer() {
+    return { name: 'Hammer', damage: 10 };
+}
+
+craftHammer();</textarea>
+                
+                <!-- Editor Controls -->
+                <div class="editor-controls">
+                    <button class="craft-btn" id="craftBtn">
+                        <span class="craft-icon">🔨</span>
+                        <span>Craft Item</span>
+                    </button>
+                    <button class="clear-btn" id="clearBtn">
+                        <span>🗑️</span> Clear
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Console Output -->
+            <div class="console">
+                <div class="console-header">
+                    <span>Console Output</span>
+                </div>
+                <div class="console-content" id="consoleContent">
+                    <div class="console-info">[Ready] Write your code and click "Craft Item"</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inventory Panel -->
+        <section class="inventory-panel">
+            <div class="panel-header">
+                <h2>Inventory</h2>
+                <div class="inventory-stats">
+                    <span id="itemCount">0</span> items
+                </div>
+            </div>
+            <div class="inventory-grid" id="inventoryGrid">
+                <div class="inventory-empty">
+                    <div class="empty-icon">📦</div>
+                    <div class="empty-text">No items yet</div>
+                    <div class="empty-hint">Craft your first item!</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Puzzle Area -->
+        <section class="puzzle-panel">
+            <div class="panel-header">
+                <h2>Puzzle Area</h2>
+                <button class="reset-puzzle-btn" id="resetPuzzleBtn">
+                    <span>🔄</span> Reset
+                </button>
+            </div>
+            
+            <div class="puzzle-description" id="puzzleDescription">
+                Drag a hammer from your inventory to break the stone and proceed to the next level!
+            </div>
+            
+            <div class="puzzle-area">
+                <div class="puzzle-target" id="puzzleTarget">
+                    <div class="target-icon">🪨</div>
+                    <div class="target-label">Stone Block</div>
+                    <div class="target-hint">Requires: Hammer (damage ≥ 5)</div>
+                </div>
+                
+                <div class="drop-zone" id="dropZone">
+                    <div class="drop-zone-icon">⬇️</div>
+                    <div class="drop-zone-text">Drop item here</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Welcome!</h3>
+                <button class="modal-close" id="modalClose">×</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                Welcome to Code Craft!
+            </div>
+        </div>
+    </div>
+
+    <!-- Particle Effects Container -->
+    <div class="particles-container" id="particlesContainer"></div>
+
+    <!-- GSAP Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <!-- Game Data -->
+    <script>
+        const RECIPES_DATA = {
+            1: {
+                description: "Create a function called <code>craftHammer()</code> that returns an object with <code>name</code> and <code>damage</code> properties.",
+                expectedFunction: "craftHammer",
+                requiredProperties: ["name", "damage"],
+                testCalls: [],
+                example: "function craftHammer() {\n    return { \n        name: 'Hammer', \n        damage: 10 \n    };\n}\n\ncraftHammer();"
+            },
+            2: {
+                description: "Create a function called <code>craftSword(material)</code> that takes a material parameter and returns a sword.",
+                expectedFunction: "craftSword",
+                requiredProperties: ["name", "damage", "material"],
+                testCalls: [{ args: ['iron'] }],
+                example: "function craftSword(material) {\n    const damages = { iron: 15, steel: 25, diamond: 40 };\n    return { \n        name: material + ' Sword', \n        damage: damages[material] || 10, \n        material: material \n    };\n}\n\ncraftSword('iron');"
+            },
+            3: {
+                description: "Create <code>craftMagicHammer(materials)</code> that combines materials with magical properties.",
+                expectedFunction: "craftMagicHammer",
+                requiredProperties: ["name", "damage", "magical", "materials"],
+                testCalls: [{ args: [[{ name: 'crystal', power: 20 }, { name: 'rune', power: 15 }]] }],
+                example: "function craftMagicHammer(materials) {\n    const totalDamage = materials.reduce((sum, mat) => sum + (mat.power || 0), 0);\n    return { \n        name: 'Magic Hammer', \n        damage: totalDamage, \n        magical: true, \n        materials: materials \n    };\n}\n\ncraftMagicHammer([{name: 'crystal', power: 20}, {name: 'rune', power: 15}]);"
+            }
+        };
+
+        const PUZZLES_DATA = {
+            1: {
+                description: "Drag a hammer from your inventory to break the stone!",
+                target: "🪨",
+                targetLabel: "Stone Block",
+                requiredItem: "Hammer",
+                requiredProperty: "damage",
+                minValue: 5
+            },
+            2: {
+                description: "Use a sword to defeat the goblin (min 15 damage)!",
+                target: "👹",
+                targetLabel: "Goblin Warrior",
+                requiredItem: "Sword",
+                requiredProperty: "damage",
+                minValue: 15
+            },
+            3: {
+                description: "Break the magical barrier (min 30 damage, must be magical)!",
+                target: "🛡️",
+                targetLabel: "Magic Barrier",
+                requiredItem: "Magic Hammer",
+                requiredProperty: "damage",
+                minValue: 30,
+                additionalRequirement: "magical"
+            }
+        };
+    </script>
+    
+    <!-- Main Game Script -->
+    <script src="script.js"></script>
+</body>
+</html>
