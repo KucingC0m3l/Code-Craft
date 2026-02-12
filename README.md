@@ -1,4 +1,4 @@
-# 🛠️ Code Craftt
+# 🛠️ Code Craft
 
 ## 🎮 Fitur Utama
 
